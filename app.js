@@ -3181,7 +3181,7 @@
 
   // ---------- Тема оформления ----------
   // Готовые палитры: красят фон за контентом, аккордеон, подменю и акценты. Тема применяется сразу по клику на плашку,
-  // ✓ и ✕ просто закрывают панель. Цвета — с миниатюр макета (16090:237338), «Голубая» — с экрана 19270:30531 (gradient 1).
+  // ✓ и ✕ просто закрывают панель. Цвета — с миниатюр макета (16090:237338).
   // acc — фон аккордеона (null — прозрачный, в кружке шахматка), marker — акцент 1, accent2 — акцент 2, pv — цвета превью.
   // Аккордеон прозрачный, лежит на фоне страницы. Наведение и выбранный пункт — лёгкий оттенок акцента темы, не серый.
   // Цвета непрозрачные: под командами ✎ ⋮ текст пункта должен закрываться.
@@ -3201,11 +3201,9 @@
   const DARK_PAGE = { // тёмная страница: карточки, текст, скелетон
     '--c-surface': '#23303e', '--c-text': '#e9ebec', '--c-text-strong': '#e9ebec', '--c-name': '#a9bfd9', '--c-name2': '#8fb4e8', '--c-sum': '#c9d3e8',
     '--c-label': '#9aa6b4', '--c-link': '#6fa8ec', '--c-border': '#34465a', '--c-divider': '#34465a', '--c-row': '#2b3a4a',
-    '--c-sk': '#34465a', '--c-sk-row': '#2b3a4a', '--c-sk-pic': '#2b3a4a',
+    '--c-sk': '#34465a', '--c-sk-row': '#2b3a4a', '--c-sk-pic': '#2b3a4a', '--c-page': '#1d2834',
   };
   const THEMES = [
-    { id: 'blue', acc: null, marker: '#0c94ff', accent2: '#cc3d00', bg: 'linear-gradient(#f2f9ff, #f8f8f8 27.546%)', vars: light('#e8f1fb', '#eef5fd'), pv: { ...PV_LIGHT, sel: '#eef5fd' } },
-    { id: 'pink', acc: null, marker: '#ff4567', accent2: '#f6733c', bg: 'linear-gradient(#fff2f4, #f8f8f8 27.546%)', vars: light('#fbe9ed', '#fdf1f3'), pv: { ...PV_LIGHT, sel: '#fdf1f3' } },
     // под ЦУ — свой фон (Figma 16288:199296)
     { id: 'dark', acc: '#2c3e50', marker: '#0c94ff', accent2: '#cc3d00', vars: { '--cu-bg': '#ecedee' }, pv: PV_DARK },
     { id: 'gray-blue', acc: '#e9e9e9', marker: '#357ed0', accent2: '#cc3d00', vars: { ...GRAY, '--acc-item-hover': '#f2f2f2', '--acc-item-selected': '#dedede', '--acc-burger-hover': '#dedede', '--acc-bird-hover': '#dedede' }, pv: PV_GRAY },
@@ -3214,7 +3212,7 @@
       pv: { ...PV_DARK, line: '#505062', sel: '#161e34' } },
     { id: 'gray-pink', acc: '#e9e9e9', marker: '#ff4567', accent2: '#ff4567', vars: { ...GRAY, '--acc-item-hover': '#f2f2f2', '--acc-item-selected': '#dedede', '--acc-burger-hover': '#dedede', '--acc-bird-hover': '#dedede' }, pv: { ...PV_GRAY, title: '#ff4567' } },
     { id: 'gray-red', acc: '#f0f0f0', marker: '#cd3238', accent2: '#df1c33', vars: { ...GRAY, '--acc-item-hover': '#f8f8f8', '--acc-item-selected': '#e5e5e5', '--acc-burger-hover': '#e5e5e5', '--acc-bird-hover': '#e5e5e5' }, pv: { ...PV_GRAY, title: '#787878', line: '#d0d0d0' } },
-    { id: 'dark-full', acc: '#2c3e50', marker: '#0c93fe', accent2: '#ffcc99', bg: '#1d2834', vars: DARK_PAGE, pv: { ...PV_DARK, card: '#23303e', box: '#2b3a4a', top: '#2b3a4a' } },
+    { id: 'dark-full', acc: '#2c3e50', marker: '#0c93fe', accent2: '#ffcc99', vars: DARK_PAGE, pv: { ...PV_DARK, card: '#23303e', box: '#2b3a4a', top: '#2b3a4a' } },
     { id: 'graphite', acc: '#323232', marker: '#962147', accent2: '#962147',
       vars: { '--acc-item-hover': '#404040', '--acc-item-selected': '#222', '--acc-bird': '#fff', '--acc-bird-bg': '#962147', '--acc-text': '#e6e6e6', '--acc-icon': '#9c9c9c', '--acc-label': '#8c8c8c',
         '--acc-cmd-dots': '#7a7a7a', '--acc-plus': '#9c9c9c', '--acc-burger-hover': '#2a2a2a', '--acc-bird-hover': '#404040', '--submenu-bg': '#404040', '--submenu-item-hover': '#4e4e4e' },
@@ -3225,7 +3223,9 @@
         '--acc-burger-hover': '#cfdadb', '--acc-bird-hover': '#cfdadb', '--submenu-bg': '#eef3f3', '--submenu-item-hover': '#d8e1e2' },
       pv: { title: '#1b3e42', line: '#98aaac', icon: '#00282c', iconSel: '#00282c', sel: '#e6ecee' } },
   ];
-  const DEFAULT_BG = '#f8f8f8';
+  const DEFAULT_BG = '#dad9e0'; // фон за страницей; сама страница — --c-page (#f8f8f8)
+  // Свой фон за страницей (окно «Фон»): отдельная от темы настройка — смена фона не трогает тему, смена темы не трогает фон.
+  let pageBg = null;
   // Все токены, которые задаёт хоть одна тема, — чтобы при смене темы сбросить прежние.
   const THEME_PROPS = [...new Set(THEMES.flatMap((t) => Object.keys(themeVars(t))))];
   let themeId = 'dark';
@@ -3266,11 +3266,9 @@
     const e = { acc: t.acc, marker: t.marker, accent2: t.accent2, vars: t.vars };
     if (own.marker) e.marker = toCss(own.marker);
     if (own.accent2) e.accent2 = toCss(own.accent2);
-    // свой фон — страница светлая: тёмные карточки темы «на всю страницу» не берём; аккордеон и фон под ЦУ остаются от темы
-    if (own.bg) { e.bg = bgCss(own.bg); e.pvBg = bgPreview(own.bg); e.vars = Object.fromEntries(Object.entries(t.vars).filter(([k]) => !k.startsWith('--c-'))); }
     if (own.acc) {
       e.acc = toCss(own.acc);
-      const page = Object.fromEntries(Object.entries(t.vars).filter(([k]) => (!own.bg && k.startsWith('--c-')) || k === '--cu-bg'));
+      const page = Object.fromEntries(Object.entries(t.vars).filter(([k]) => k.startsWith('--c-') || k === '--cu-bg'));
       e.vars = { ...page, ...accVars(own.acc, own.marker ? own.marker.hex : t.marker) };
       // превью: цвета текста и иконок аккордеона под его новый фон
       e.pv = !e.vars['--acc-text'] ? PV_DARK : e.vars['--acc-text'] === '#000' ? { ...PV_LIGHT, sel: e.vars['--acc-item-selected'] } : PV_GRAY;
@@ -3281,7 +3279,7 @@
   function themeVars(t, e = effColors(t, {})) {
     return {
       ...e.vars,
-      '--acc-bg': e.acc ?? 'transparent', '--acc-marker': e.marker, '--accent2': e.accent2, '--content-bg': e.bg ?? t.bg ?? DEFAULT_BG,
+      '--acc-bg': e.acc ?? 'transparent', '--acc-marker': e.marker, '--accent2': e.accent2, '--content-bg': pageBg ? bgCss(pageBg) : DEFAULT_BG,
     };
   }
 
@@ -3290,13 +3288,16 @@
     const v = { ...themeVars(t, e) };
     const p = e.pv ?? t.pv;
     // фон-картинка: под страницей забеление 70%, как на сцене; аккордеон без цвета или белый 70% лежит на том же забелении
-    const img = /^url\(/.test(e.pvBg ?? '');
+    const pvBg = pageBg ? bgPreview(pageBg) : null;
+    const img = /^url\(/.test(pvBg ?? '');
     const veilAcc = img && (v['--acc-bg'] === 'transparent' || v['--acc-bg'] === 'rgba(255, 255, 255, 0.7)');
     const pv = {
-      bg: e.pvBg ?? v['--content-bg'], veil: img ? 'rgba(255, 255, 255, .7)' : 'transparent', acc: veilAcc ? 'transparent' : v['--acc-bg'], sel: p.sel ?? v['--acc-item-selected'] ?? '#273748',
+      bg: pvBg ?? v['--content-bg'], veil: img ? 'rgba(255, 255, 255, .7)' : 'transparent', acc: veilAcc ? 'transparent' : v['--acc-bg'], sel: p.sel ?? v['--acc-item-selected'] ?? '#273748',
       bird: v['--acc-bird'] ?? e.marker, 'bird-bg': v['--acc-bird-bg'] ?? 'transparent',
       title: p.title, line: p.line, icon: p.icon, 'icon-sel': p.iconSel, marker: e.marker, accent2: e.accent2,
       card: p.card ?? '#fff', box: p.box ?? '#f4f4f4', top: p.top ?? '#fff',
+      // сама страница справа от аккордеона — --c-page, как на сцене; при фоне-картинке её роль играет забеление
+      page: img ? 'transparent' : v['--c-page'] ?? '#f8f8f8',
     };
     return Object.entries(pv).map(([k, c]) => `--pv-${k}:${c}`).join(';');
   }
@@ -3304,7 +3305,7 @@
   // Превью 306×181: аккордеон (птичка, название, пункт, выбранный пункт с маркером) и страница (вкладка, карточка).
   function pvHTML(t, e) {
     return `<span class="tpv" style="${pvStyle(t, e)}">` +
-      '<i class="tpv__veil"></i><i class="tpv__acc"></i><i class="tpv__bird">&#xE9E2;</i><i class="tpv__title"></i>' +
+      '<i class="tpv__veil"></i><i class="tpv__page"></i><i class="tpv__acc"></i><i class="tpv__bird">&#xE9E2;</i><i class="tpv__title"></i>' +
       '<i class="tpv__dot" style="top:46px"></i><i class="tpv__line" style="top:54px;width:60px"></i>' +
       '<i class="tpv__sel"></i><i class="tpv__mark"></i><i class="tpv__dot" style="top:79px;background:var(--pv-icon-sel)"></i>' +
       '<i class="tpv__line" style="top:87px;width:34px"></i><i class="tpv__line tpv__a2" style="top:87px;left:84px;width:10px"></i><i class="tpv__line tpv__a1" style="top:87px;left:98px;width:10px"></i>' +
@@ -3328,7 +3329,11 @@
     `<button class="tp-tile" type="button" data-theme="${id}"><span class="tp-tile__wrap">` +
     `<span class="tp-tile__pv">${pvHTML(t, e)}</span>` +
     '<span class="tp-tile__check"><span class="ico24">&#xE616;</span></span></span></button>';
-  tpGrid.innerHTML = THEMES.map((t) => tileHTML(t.id, t)).join('');
+  // плашки системных тем перерисовываются в paintTheme: в превью виден текущий фон
+  const renderSystemTiles = () => {
+    tpGrid.innerHTML = THEMES.map((t) => tileHTML(t.id, t)).join('');
+    for (const b of tpGrid.children) b.classList.toggle('is-active', b.dataset.theme === themeId);
+  };
 
   // Пользовательская тема (Figma 18321:16888): одна; появляется, как только цвета перенастроены в окне выбора цвета,
   // и дальше обновляется при каждой перенастройке. Группа «Пользовательские» — над «Системными», плитка без подписи.
@@ -3370,6 +3375,8 @@
     const e = effColors(t);
     for (const p of THEME_PROPS) stage.style.removeProperty(p);
     for (const [p, v] of Object.entries(themeVars(t, e))) stage.style.setProperty(p, v);
+    renderSystemTiles();
+    renderUserTheme();
     // двойной кружок «Темы»: слева цвет аккордеона (прозрачный — белая половина), справа «Акцентный 2»
     const dot = $('#themeDot');
     dot.style.setProperty('--dot-l', e.acc || '#fff');
@@ -3520,12 +3527,17 @@
   $('#cwClose').addEventListener('click', closeColorWin);
 
   // ---------- Фон (Figma 16385:63244, верхняя строка 16385:63266) ----------
-  // Свой фон хранится в custom.bg и, как свои цвета, делает тему пользовательской; выбор системной темы возвращает фон темы.
+  // Свой фон хранится в pageBg, отдельно от темы: не делает тему пользовательской, выбор темы его не сбрасывает.
   // Фон не меняет цвет аккордеона и фон под ЦУ — они остаются от темы (или свои). Картинка: под серединой и информерами
   // забеление 70%, поля по бокам — картинка как есть.
-  // {kind: 'color', hex, a} · {kind: 'grad', c} — от акцента 10% к #f8f8f8 · {kind: 'img', i, fx} — fx: настройки «Картинки».
-  const BG_GRADS = ['#943253', '#f16767', '#e59545', '#e5cb45', '#009918', '#0c94ff', '#326194', '#4c3294', '#943288'];
-  const BG_COLORS = ['#ffe3ec', '#ffe5e3', '#fff1e3', '#fffbe3', '#e3ffe8', '#e3faff', '#e3f1ff', '#eae3ff', '#ffe3fa', '#ededed'];
+  // {kind: 'color', hex, a} · {kind: 'grad', c} — от акцента 10% к фону по умолчанию (DEFAULT_BG) · {kind: 'img', i, fx} — fx: настройки «Картинки».
+  const BG_COLORS = [
+    null, '#e03131', '#f4fff4', '#fff4f4', '#6a5bb8', '#2862a2', '#e0251a', '#ebb653', '#333f7a', '#f2f2f2',
+    '#ffe0ea', '#ffffff', '#fff9e0', '#ebebeb', '#fff8f0', '#4c3294', '#943288', '#e5cb45', '#000000', null,
+    '#9b9b9b', '#999999', '#46a82a', '#4ee022', '#f540f5', '#4a9e36', '#ffeb1a', '#b06058', '#e35a4a', '#943253',
+    '#4c3294', '#943288', '#e59545', '#e5cb45', '#009918', '#26b6d4', '#326194', '#999999', '#ffe5e3', '#ffe3ec',
+    '#eae3ff', '#ffe3fa', '#fff1e3', '#fffbe3', '#e3ffe8', '#e3faff', '#e3f1ff', '#ededed',
+  ];
   const BG_IMGS = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => `assets/img/bg/0${n}.jpg`);
   const FX_DEFAULT = { op: 100, blur: 0, con: 100, sat: 100, temp: 0 };
   // Ползунки «Картинки»: диапазон и единица; 0 у контраста и насыщенности — серое / плоское, 100 — как в оригинале.
@@ -3550,12 +3562,9 @@
     if (b.kind === 'grad') return `linear-gradient(${gradTop(b)}, rgba(248, 248, 248, 0)), ${DEFAULT_BG}`;
     return bgCss(b);
   }
-  // Текущий фон: свой или фон темы (градиент темы «Голубая» / «Розовая» — начало градиента из её bg)
+  // Текущий фон за страницей: свой или DEFAULT_BG. Тема его не задаёт — это отдельная настройка (окно «Фон»).
   function curBg() {
-    if (custom.bg) return custom.bg;
-    const bg = baseTheme().bg ?? DEFAULT_BG;
-    const m = /^linear-gradient\((#[0-9a-f]{6})/i.exec(bg);
-    return m ? { kind: 'grad', top: m[1] } : { kind: 'color', hex: bg, a: 100 };
+    return pageBg ?? { kind: 'color', hex: DEFAULT_BG, a: 100 };
   }
 
   function paintBg(t) {
@@ -3566,7 +3575,8 @@
     // Аккордеон без цвета лежит на том же забелении, что и контент: картинка под ним тоже под белым 70%.
     const acc = custom.acc ?? baseColor(t.acc);
     const clear = !acc.hex || acc.a === 0;
-    stage.classList.toggle('is-acc-veil', img && (clear || (acc.hex === '#ffffff' && acc.a === 70)));
+    // без картинки аккордеон без цвета лежит на подложке страницы (#f8f8f8), а не на фоне за страницей
+    stage.classList.toggle('is-acc-veil', img ? clear || (acc.hex === '#ffffff' && acc.a === 70) : clear);
     stage.classList.toggle('is-acc-clear', img && clear);
     if (!img) { for (const p of ['--bg-img', '--bg-op', '--bg-filter', '--bg-tint']) stage.style.removeProperty(p); return; }
     const f = b.fx;
@@ -3582,9 +3592,12 @@
   const bgBtn = $('#bgBtn');
   const bgHex = $('#bgHex');
   const bgAlpha = $('#bgAlpha');
+  // палитра фона: 49 цветов по 10 в ряд (null — прозрачный, шахматка) и «+» в конце
   $('#bgPresets').innerHTML =
-    BG_GRADS.map((c) => `<button class="cw-sw is-grad" type="button" data-grad="${c}" style="--c:${rgba(c, .1)}" aria-label="Градиент"></button>`).join('') +
-    [DEFAULT_BG, ...BG_COLORS].map((h) => `<button class="cw-sw" type="button" data-hex="${h}" style="--c:${h}" aria-label="${h}"></button>`).join('');
+    BG_COLORS.map((h) => h
+      ? `<button class="cw-sw" type="button" data-hex="${h}" style="--c:${h}" aria-label="${h}"></button>`
+      : '<button class="cw-sw is-clear" type="button" data-hex="" aria-label="Прозрачный"></button>').join('') +
+    '<button class="cw-sw is-add" type="button" aria-label="Другой цвет"></button>';
   // меню «Загрузить»: пункты (только ховерятся) и коллекция — рубрика и широкая картинка под ней.
   // Рубрики — как в Saby, картинки — наши заглушки (по одной на рубрику).
   const BG_COLLECTION = ['Недавние', 'IT-технологии', 'Бизнес', 'Всего понемногу', 'Госорганы', 'Еда', 'Природа', 'Архитектура'];
@@ -3598,17 +3611,15 @@
       `<button class="bg-tile" type="button" data-img="${i}" style="--img:url(${src})" aria-label="${BG_COLLECTION[i]}"></button></div>`).join('') +
     '</div>';
 
-  // Новый фон: аккордеон не трогаем; тема становится пользовательской.
+  // Новый фон: тему не трогаем, только перерисовываем страницу и превью тем (в них виден фон).
   function setBg(b) {
-    custom.bg = b;
-    saveUserTheme();
+    pageBg = b;
     paintTheme();
     bgRender(true);
   }
   // Настройки картинки меняются без сброса аккордеона
   function setFx(key, v, typed) {
-    custom.bg = { ...custom.bg, fx: { ...custom.bg.fx, [key]: v } };
-    saveUserTheme();
+    pageBg = { ...pageBg, fx: { ...pageBg.fx, [key]: v } };
     paintTheme();
     fxRender(typed ? key : null);
   }
@@ -3617,8 +3628,9 @@
     const b = curBg();
     bgWin.dataset.kind = b.kind;
     const pill = $('#bgPill');
-    pill.className = 'cw-pill' + (b.kind === 'img' ? ' is-img' : '');
-    pill.style.setProperty('--c', b.kind === 'img' ? `url(${BG_IMGS[b.i]})` : bgPreview(b));
+    const alpha = b.kind === 'color' && b.a < 100;
+    pill.className = 'cw-pill' + (b.kind === 'img' ? ' is-img' : alpha ? ' is-alpha' : '');
+    pill.style.setProperty('--c', b.kind === 'img' ? `url(${BG_IMGS[b.i]})` : alpha ? toCss(b) : bgPreview(b));
     if (b.kind === 'grad') $('#bgGradFrom').textContent = (b.c ? mixHex(DEFAULT_BG, b.c, .1) : b.top).slice(1).toUpperCase();
     if (fields && b.kind === 'color') { bgHex.value = b.hex.slice(1).toUpperCase(); bgAlpha.value = b.a; }
   }
@@ -3629,7 +3641,7 @@
     '<span class="bg-slider"><i class="bg-slider__fill"></i><i class="bg-slider__thumb"></i></span>' +
     `<span class="bg-num${x.unit ? '' : ' no-unit'}"><input type="text" inputmode="numeric" autocomplete="off" maxlength="4" aria-label="${x.name}"><span>${x.unit}</span></span></div>`).join('');
   function fxRender(skipInput) {
-    const f = custom.bg.fx;
+    const f = pageBg.fx;
     for (const x of FX) {
       const row = $(`[data-fx="${x.key}"]`, bgWin);
       row.style.setProperty('--k', (f[x.key] - x.min) / (x.max - x.min));
@@ -3645,10 +3657,10 @@
     }
   }
   function openPic() {
-    if (custom.bg?.kind !== 'img') return;
+    if (pageBg?.kind !== 'img') return;
     bgWin.classList.add('is-pic');
     setBgTab('img');
-    $('#bgPicPv').style.setProperty('--img', `url(${BG_IMGS[custom.bg.i]})`);
+    $('#bgPicPv').style.setProperty('--img', `url(${BG_IMGS[pageBg.i]})`);
     fxRender();
   }
   function closePic() {
@@ -3663,7 +3675,7 @@
     const b = e.target.closest('.pge-tumbler__item');
     if (!b || b.classList.contains('is-active')) return;
     if (b.dataset.tab === 'color') { closeUpMenu(); closePic(); }
-    else if (custom.bg?.kind === 'img') openPic();
+    else if (pageBg?.kind === 'img') openPic();
     else bgUpMenu.hidden = false;
   });
 
@@ -3672,7 +3684,7 @@
     closePopups();
     closeUpMenu();
     bgRender(true);
-    if (custom.bg?.kind === 'img') openPic(); else closePic(); // открывается на вкладке текущего фона
+    if (pageBg?.kind === 'img') openPic(); else closePic(); // открывается на вкладке текущего фона
     // окно встаёт левым краем по левому краю кнопки «Фон», верх — по верху шапки
     const r = stageRect(bgBtn);
     bgWin.hidden = false;
@@ -3691,9 +3703,9 @@
   $('#bgClose').addEventListener('click', closeBgWin);
   $('#bgPresets').addEventListener('click', (e) => {
     const sw = e.target.closest('.cw-sw');
-    if (!sw) return;
-    // заготовленный цвет или градиент применяется и сразу закрывает окно; картинка — нет (у неё есть настройки)
-    setBg(sw.dataset.grad ? { kind: 'grad', c: sw.dataset.grad } : { kind: 'color', hex: sw.dataset.hex, a: 100 });
+    if (!sw || sw.classList.contains('is-add')) return;
+    // заготовленный цвет применяется и сразу закрывает окно; прозрачный — белый с 0%; картинка — нет (у неё есть настройки)
+    setBg(sw.dataset.hex ? { kind: 'color', hex: sw.dataset.hex, a: 100 } : { kind: 'color', hex: '#ffffff', a: 0 });
     closeBgWin();
   });
   // картинка из коллекции — фоном (настройки по умолчанию), меню закрывается, окно переходит на «Картинку» с её настройками
@@ -3728,7 +3740,7 @@
       const r = slider.getBoundingClientRect();
       const k = Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width));
       const v = Math.round(x.min + k * (x.max - x.min));
-      if (v !== custom.bg.fx[x.key]) setFx(x.key, v);
+      if (v !== pageBg.fx[x.key]) setFx(x.key, v);
     };
     slider.setPointerCapture(e.pointerId);
     move(e);
@@ -3743,7 +3755,7 @@
     if (!/^-?\d+$/.test(input.value)) return;
     setFx(x.key, Math.min(x.max, Math.max(x.min, +input.value)), true);
   });
-  $('#bgFx').addEventListener('focusout', () => { if (custom.bg?.kind === 'img') fxRender(); });
+  $('#bgFx').addEventListener('focusout', () => { if (pageBg?.kind === 'img') fxRender(); });
 
   // ---------- Отмена / повтор в шапке конструктора ----------
   // История — снимки всего, что пользователь меняет на странице: вид аккордеона, логотип, позиционирование, «Информеры»,
@@ -3757,7 +3769,7 @@
   // Только изменения: свёрнут ли аккордеон, какая вкладка активна, что выделено и какие окна открыты — не пишется.
   const snapshot = () => JSON.stringify({
     submenuTrigger: settings.submenuTrigger,
-    logo, align: state.align, informers: state.informers, themeId, userTheme,
+    logo, align: state.align, informers: state.informers, themeId, userTheme, pageBg,
     tabs, tabsAdded: stage.classList.contains('tabs-added'),
     sections: SECTIONS.map((s) => ({ id: s.id, title: s.title, short: s.short, customIcon: s.customIcon ?? null, pinned: !!s.pinned,
       head: s.submenu.head ?? null, headRight: s.submenu.headRight ?? null, noHead: !!s.submenu.noHead, cols: s.submenu.cols })),
@@ -3799,12 +3811,13 @@
     setLogo(s.logo);
     setAlign(s.align);
     if (s.informers !== state.informers) informers.click();
-    // тема: системная или пользовательская со своими цветами и фоном; открытые окна цвета и фона — по новым цветам
+    // тема: системная или пользовательская со своими цветами; фон — отдельно; открытые окна цвета и фона — по новым значениям
     userTheme = s.userTheme;
+    pageBg = s.pageBg ?? null;
     applyTheme(s.themeId);
     if (!colorWin.hidden) cwRender(true);
     if (!bgWin.hidden) {
-      if (custom.bg?.kind === 'img') { $('#bgPicPv').style.setProperty('--img', `url(${BG_IMGS[custom.bg.i]})`); fxRender(); }
+      if (pageBg?.kind === 'img') { $('#bgPicPv').style.setProperty('--img', `url(${BG_IMGS[pageBg.i]})`); fxRender(); }
       else closePic();
       bgRender(true);
     }

@@ -75,7 +75,8 @@
   --rp-accent: #db4200;
 
   /* фон контента — задаётся темой оформления: при смене фона тема меняет --content-bg и --cu-bg вместе */
-  --content-bg: #f8f8f8;                     /* фон за контентом: цвет или картинка, например url(...) center / cover #f8f8f8 */
+  --content-bg: #dad9e0;                     /* фон за страницей (поля вокруг неё): цвет или картинка; его меняет окно «Фон» */
+  --c-page: #f8f8f8;                         /* фон самой страницы (середина + ЦУ) — окно «Фон» его не меняет */
   --under-content: rgba(255, 255, 255, 0);   /* настройка-интерфейса/цвет-под-контентом (под информерами) */
   --cu-bg: transparent;                      /* настройка-интерфейса/цвет-цу — под ЦУ виден фон темы */
 
@@ -1547,9 +1548,8 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
   background: #fff; border-radius: 0 8px 0 0; box-shadow: 0 0 8px rgba(0, 0, 0, .06);
 }
 .tp-card::-webkit-scrollbar { display: none; }
-/* большое превью на всю ширину карточки (474): 306×181 × 1.5425 внутри рамки 1px; под ним разделитель */
-.tp-big { position: relative; padding-bottom: 12px; }
-.tp-big::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 0; height: 1px; background: #eaeaea; }
+/* большое превью на всю ширину карточки (474): 306×181 × 1.5425 внутри рамки 1px; до «Системные» 24px (6 + 8 + 10) */
+.tp-big { position: relative; padding-bottom: 6px; }
 .tp-big__frame { position: relative; display: block; height: 281.7px; overflow: hidden; border: 1px solid #eaeaea; border-radius: 8px; }
 .tp-big__frame > .tpv { transform: scale(1.5425); transform-origin: 0 0; }
 /* «Настроить» — кнопка translucent по центру превью, видна по наведению (Figma 16360:50512) */
@@ -1562,7 +1562,8 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .tp-big__frame:hover .tp-setup { opacity: 1; }
 .tp-group { position: sticky; top: -12px; z-index: 1; height: 46px; padding: 8px 0 6px; background: #fff; }
 .tp-group span { display: block; padding: 10px 0 5px; font-size: 12px; font-weight: 600; line-height: 1.4; letter-spacing: -.1692px; text-transform: uppercase; color: #000; }
-.tp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding-bottom: 12px; }
+/* поля −4px гасят padding плашек: рамки плашек встают по краям большого превью и подписи группы */
+.tp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0 -4px; padding-bottom: 12px; }
 .tp-group[hidden], .tp-grid[hidden] { display: none; }
 
 /* плашка темы: только превью (2 в ряд); в покое тонкая рамка, ховер — синяя рамка, выбранная — рамка и галочка */
@@ -1572,8 +1573,8 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .tp-tile:hover .tp-tile__wrap::after, .tp-tile.is-active .tp-tile__wrap::after { border-width: 2px; }
 .tp-tile:hover .tp-tile__wrap::after, .tp-tile.is-active .tp-tile__wrap::after { border-color: var(--info-border); }
 .tp-tile.is-active { cursor: default; }
-.tp-tile__pv { display: block; height: 135.7px; overflow: hidden; } /* превью 306×181 × .7484 → ширина плашки 229 (карточка 474 / 2 − 8) */
-.tp-tile__pv .tpv { transform: scale(.7484); transform-origin: 0 0; }
+.tp-tile__pv { display: block; height: 138.1px; overflow: hidden; } /* превью 306×181 × .7614 → ширина плашки 233 ((карточка 474 + 8) / 2 − 8) */
+.tp-tile__pv .tpv { transform: scale(.7614); transform-origin: 0 0; }
 .tp-tile__check {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 32px; height: 32px; border-radius: 100px;
   display: none; align-items: center; justify-content: center; background: #265fa1;
@@ -1585,6 +1586,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .tpv { position: relative; display: block; width: 306px; height: 181.333px; overflow: hidden; background: var(--pv-bg); }
 .tpv > i { position: absolute; display: block; }
 .tpv__veil { inset: 0; background: var(--pv-veil); }
+.tpv__page { left: 128px; top: 0; right: 0; bottom: 0; background: var(--pv-page); }
 .tpv__acc { left: 0; top: 0; width: 128px; height: 100%; background: var(--pv-acc); }
 .tpv__bird { left: 13px; top: 11px; width: 22px; height: 22px; border-radius: 50%; background: var(--pv-bird-bg); font: normal 22px/22px "cbuc-icons24"; color: var(--pv-bird); text-align: center; }
 .tpv__title { left: 46px; top: 19px; width: 52px; height: 7px; border-radius: 4px; background: var(--pv-title); }
@@ -1721,7 +1723,11 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .bg-win .cw-presets { padding-top: 10px; }
 .bg-more { display: flex; gap: 21px; margin-top: 20px; padding-left: 0; }
 .bg-more span { color: #313e78; }
-.bg-win .cw-sw.is-grad { background: linear-gradient(var(--c), rgba(248, 248, 248, 0)), #fff; }
+/* прозрачный — шахматка (в палитре и в превью при прозрачности < 100%); «+» — другой цвет */
+.bg-win .cw-sw.is-clear { background: repeating-conic-gradient(#d2d6da 0 25%, #fff 0 50%) 50% 50% / 8px 8px; }
+.bg-win .cw-sw.is-add { position: relative; border-color: transparent; background: none; }
+.bg-win .cw-sw.is-add::before, .bg-win .cw-sw.is-add::after { content: ''; position: absolute; left: 50%; top: 50%; width: 14px; height: 2px; margin: -1px 0 0 -7px; border-radius: 1px; background: #5f6b8a; }
+.bg-win .cw-sw.is-add::after { transform: rotate(90deg); }
 /* каталог картинок 2 × 4 по 163 × 91, без прокрутки; по наведению — карандаш (открывает «Картинку») */
 /* меню «Загрузить» поверх окна фона (как в Saby): пункты и коллекция, прокручивается под шапкой меню */
 .bg-up-menu { top: 0; left: 0; width: 346px; z-index: 2; padding-bottom: 0; } /* левый верхний угол — по углу окна фона */
@@ -1774,18 +1780,19 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .bg-num.no-unit span { visibility: hidden; }
 
 /* Фон-картинка: лежит под контентом отдельным слоем (на нём фильтры «Картинки»); контент, ЦУ и информеры — под забелением 70% */
-.stage.is-bg-img .content { isolation: isolate; }
+.content { isolation: isolate; }
 .stage.is-bg-img .content::before {
   content: ''; position: absolute; inset: -40px; z-index: -1; pointer-events: none;
   background: var(--bg-tint, linear-gradient(transparent, transparent)), var(--bg-img) center / cover; background-blend-mode: soft-light, normal; opacity: var(--bg-op, 1); filter: var(--bg-filter, none);
 }
-/* Забеление 70% — одним слоем под серединой и информерами (и под аккордеоном, пока он белый 70%, .is-acc-veil): у отдельных
+/* Подложка страницы (#f8f8f8, на картинке — забеление 70%) — одним слоем под серединой и информерами (и под аккордеоном, пока он белый 70%, .is-acc-veil): у отдельных
    полупрозрачных подложек при масштабировании сцены на стыках (дробные пиксели) проступали светлые полосы. */
-.stage.is-bg-img .content::after {
-  content: ''; position: absolute; top: 0; bottom: 0; z-index: -1; pointer-events: none; background: rgba(255, 255, 255, .7);
+.content::after {
+  content: ''; position: absolute; top: 0; bottom: 0; z-index: -1; pointer-events: none; background: var(--c-page);
   left: calc(var(--acc-gap) + var(--align-shift)); width: calc(var(--mid) + 322px);
 }
-.stage.is-bg-img.is-acc-veil .content::after { left: calc(1px + var(--align-shift)); width: calc(var(--acc-gap) + var(--mid) + 321px); }
+.stage.is-bg-img .content::after { background: rgba(255, 255, 255, .7); }
+.stage.is-acc-veil .content::after { left: calc(1px + var(--align-shift)); width: calc(var(--acc-gap) + var(--mid) + 321px); }
 /* аккордеон лежит на общем забелении; раскрытая по ховеру панель — поверх середины, ей нужна своя подложка */
 .stage.is-bg-img.is-acc-veil .accordion:not(.is-panel-open) { background: none; }
 /* аккордеон без цвета: раскрытой панели над серединой нужна своя подложка — забеление 70% с размытием контента под ней */
@@ -1845,9 +1852,10 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background: var(--bg-tint, linear-gradient(transparent, transparent)), var(--bg-img) center / cover; background-blend-mode: soft-light, normal; opacity: var(--bg-op, 1); filter: var(--bg-filter, none);
 }
-/* забеление 70% под страницей и ЦУ (и под аккордеоном, пока он белый 70%) — как на сцене (.content::after) */
-.stage.is-bg-img .ipv::after { content: ""; position: absolute; left: var(--ipv-acc); top: 0; right: 0; bottom: 0; z-index: -1; pointer-events: none; background: rgba(255, 255, 255, .7); }
-.stage.is-bg-img.is-acc-veil .ipv::after { left: 0; }
+/* подложка страницы под серединой и ЦУ (на картинке — забеление 70%; и под аккордеоном, пока он без цвета или белый 70%) — как на сцене (.content::after) */
+.ipv::after { content: ""; position: absolute; left: var(--ipv-acc); top: 0; right: 0; bottom: 0; z-index: -1; pointer-events: none; background: var(--c-page); }
+.stage.is-bg-img .ipv::after { background: rgba(255, 255, 255, .7); }
+.stage.is-acc-veil .ipv::after { left: 0; }
 .stage.is-bg-img.is-acc-veil .ipv__acc { background: none; }
 .ipv i { display: block; }
 .ipv__acc { flex: none; width: var(--ipv-acc); height: 269.105px; background: var(--acc-bg); }
@@ -1901,8 +1909,8 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
    --ipv-side — аккордеон (--ipv-acc) + ЦУ 92.573; .1506 — половина освободившейся доли (1 − .6988) / 2 */
 .stage.is-aligned .ipv__dash { flex: none; width: calc((100% - var(--ipv-side)) * .6988); }
 .stage.is-aligned .ipv__acc { margin-left: calc((100% - var(--ipv-side)) * .1506 * var(--center)); }
-.stage.is-bg-img.is-aligned .ipv::after { left: calc(var(--ipv-acc) + (100% - var(--ipv-side)) * .1506 * var(--center)); right: auto; width: calc((100% - var(--ipv-side)) * .6988 + 92.573px); }
-.stage.is-bg-img.is-aligned.is-acc-veil .ipv::after { left: calc((100% - var(--ipv-side)) * .1506 * var(--center)); width: calc((100% - var(--ipv-side)) * .6988 + var(--ipv-side)); }
+.stage.is-aligned .ipv::after { left: calc(var(--ipv-acc) + (100% - var(--ipv-side)) * .1506 * var(--center)); right: auto; width: calc((100% - var(--ipv-side)) * .6988 + 92.573px); }
+.stage.is-aligned.is-acc-veil .ipv::after { left: calc((100% - var(--ipv-side)) * .1506 * var(--center)); width: calc((100% - var(--ipv-side)) * .6988 + var(--ipv-side)); }
 .ipv__note { flex: none; display: flex; flex-direction: column; gap: 2.863px; padding: 4.294px; border-radius: 4.329px; background: #fff; }
 .ipv__note i { background: rgba(51, 51, 51, .07); }
 .ipv__cap { position: relative; width: 39.674px; height: 5.29px; border-radius: 54px; }
@@ -2031,14 +2039,14 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 
 .mob { position: absolute; left: 565px; top: 0; width: 400px; bottom: 8px; }
 .mob[hidden] { display: none; }
-.mob__screen { position: absolute; inset: 0; overflow: hidden; border-radius: 8px 0 0 0; background: var(--content-bg); }
+.mob__screen { position: absolute; inset: 0; overflow: hidden; border-radius: 8px 0 0 0; background: var(--c-page); }
 .stage.is-bg-img .mob__screen { background: rgba(255, 255, 255, .7); }
 .mob__page { position: absolute; left: 0; top: 0; display: block; }
 
 /* вкладка «Центр уведомлений» справа от экрана (Figma 18863:28165) — без действий */
 .mob-cu {
   position: absolute; left: 400px; top: 0; width: 31px; height: 160px; padding: 12px 7px;
-  background: var(--content-bg); border-radius: 0 8px 8px 0; /* как фон экрана (в Figma — тот же #f8f8f8) */
+  background: var(--c-page); border-radius: 0 8px 8px 0; /* как фон экрана (в Figma — тот же #f8f8f8) */
   writing-mode: vertical-rl; font-size: 14px; letter-spacing: -.1974px; line-height: 17px; color: #999; white-space: nowrap;
 }
 
