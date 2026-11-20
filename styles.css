@@ -3,6 +3,7 @@
 @font-face { font-family: "Inter"; font-weight: 100 900; font-style: normal; font-display: block; src: url("assets/fonts/Inter/Inter-roman.var.woff2") format("woff2"); }
 @font-face { font-family: "Inter"; font-weight: 100 900; font-style: italic; font-display: block; src: url("assets/fonts/Inter/Inter-italic.var.woff2") format("woff2"); }
 @font-face { font-family: "Accordion-Font"; src: url("assets/fonts/Accordion-Font.ttf") format("truetype"); font-display: block; }
+/* иконки — из ui-kit 1.20.1 (fonts/, CbucIcons 1.6.3 из Saby): все прежние коды на месте, глифы новые */
 @font-face { font-family: "cbuc-icons"; src: url("assets/fonts/cbuc-icons.ttf") format("truetype"); font-display: block; }
 @font-face { font-family: "cbuc-icons24"; src: url("assets/fonts/cbuc-icons24.ttf") format("truetype"); font-display: block; }
 
@@ -146,6 +147,14 @@ ul { list-style: none; margin: 0; padding: 0; }
 .theme-btn:hover { background: var(--pill-hover); }
 .theme-btn:has(.is-active) { background: var(--pill-active); }
 .theme-btn__label { display: flex; align-items: center; height: 28px; padding: 0 6px 0 10px; }
+/* «Тема»: двойной кружок слева от подписи, кликается и ховерится вся кнопка целиком */
+.theme-btn--theme { align-items: center; padding: 1px; }
+.theme-btn--theme.is-active { background: var(--pill-active); }
+.theme-btn--theme .theme-btn__label { padding: 0 10px 0 6px; }
+.theme-dot {
+  flex: none; width: 20px; height: 20px; margin-left: 6px; border-radius: 50%; border: 1px solid var(--swatch-border);
+  background: linear-gradient(to right, var(--dot-l, #fff) 50%, var(--dot-r, #fff) 50%);
+}
 .swatches { display: flex; align-items: center; }
 /* кружок: при наведении растёт до 32px на месте, поверх соседей (Figma 16369:59560) */
 .swatch { position: relative; width: 28px; height: 28px; border-radius: 50%; background: var(--c); border: 1px solid var(--swatch-border); margin-right: -4px; transition: transform .12s; }
@@ -153,9 +162,8 @@ ul { list-style: none; margin: 0; padding: 0; }
 .swatch:last-child { margin-right: 0; }
 /* без цвета (прозрачный аккордеон) — белый круг, перечёркнутый справа сверху влево вниз (Figma «нет фона»);
    шахматка — только для полупрозрачного цвета (.is-alpha, пока ни в одной теме) */
-.swatch.is-none, .tp-tile__sw i.is-none { background: linear-gradient(to bottom right, transparent calc(50% - .5px), #d2d6da calc(50% - .5px), #d2d6da calc(50% + .5px), transparent calc(50% + .5px)), #fff; }
-.swatch.is-alpha, .tp-tile__sw i.is-alpha { background: linear-gradient(var(--c), var(--c)), repeating-conic-gradient(#d2d6da 0 25%, #fff 0 50%) 50% 50% / 8px 8px; }
-.tp-tile__sw i.is-alpha { background-size: auto, 6px 6px; }
+.swatch.is-none { background: linear-gradient(to bottom right, transparent calc(50% - .5px), #d2d6da calc(50% - .5px), #d2d6da calc(50% + .5px), transparent calc(50% + .5px)), #fff; }
+.swatch.is-alpha { background: linear-gradient(var(--c), var(--c)), repeating-conic-gradient(#d2d6da 0 25%, #fff 0 50%) 50% 50% / 8px 8px; }
 
 .lang-btn { height: 30px; padding: 0 10px; align-items: center; transition: background-color .12s; }
 .lang-btn:hover, .lang-btn.is-active { background: var(--pill-hover); }
@@ -1528,7 +1536,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 /* Справа на всю высоту сцены: слева шапка и белая карточка с темами, справа колонка 52 с ✕ и информерами */
 .theme-panel {
   position: absolute; z-index: 22; right: 0; top: 0; bottom: 0; width: 550px; display: flex;
-  background: #ecedee; box-shadow: -6px 0 22px rgba(0, 0, 0, .11), -2px 0 8px rgba(0, 0, 0, .02);
+  background: var(--editor-icon-bg); /* background/unaccented_background-color */ box-shadow: -6px 0 22px rgba(0, 0, 0, .11), -2px 0 8px rgba(0, 0, 0, .02);
 }
 .theme-panel[hidden] { display: none; }
 .tp-main { flex: 1 0 0; min-width: 0; display: flex; flex-direction: column; }
@@ -1539,8 +1547,11 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
   background: #fff; border-radius: 0 8px 0 0; box-shadow: 0 0 8px rgba(0, 0, 0, .06);
 }
 .tp-card::-webkit-scrollbar { display: none; }
-.tp-big { height: 181.333px; display: flex; justify-content: center; }
-.tp-big__frame { position: relative; width: 306px; height: 181.333px; overflow: hidden; border: 1px solid #eaeaea; border-radius: 6px; }
+/* большое превью на всю ширину карточки (474): 306×181 × 1.5425 внутри рамки 1px; под ним разделитель */
+.tp-big { position: relative; padding-bottom: 12px; }
+.tp-big::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 0; height: 1px; background: #eaeaea; }
+.tp-big__frame { position: relative; display: block; height: 281.7px; overflow: hidden; border: 1px solid #eaeaea; border-radius: 8px; }
+.tp-big__frame > .tpv { transform: scale(1.5425); transform-origin: 0 0; }
 /* «Настроить» — кнопка translucent по центру превью, видна по наведению (Figma 16360:50512) */
 .tp-setup {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); height: 32px; display: flex; align-items: center; gap: 8px; padding: 0 16px;
@@ -1551,19 +1562,18 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .tp-big__frame:hover .tp-setup { opacity: 1; }
 .tp-group { position: sticky; top: -12px; z-index: 1; height: 46px; padding: 8px 0 6px; background: #fff; }
 .tp-group span { display: block; padding: 10px 0 5px; font-size: 12px; font-weight: 600; line-height: 1.4; letter-spacing: -.1692px; text-transform: uppercase; color: #000; }
-.tp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding-bottom: 12px; }
+.tp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding-bottom: 12px; }
 .tp-group[hidden], .tp-grid[hidden] { display: none; }
 
-/* плашка темы: кружки (аккордеон, акцент 1, акцент 2) и превью; ховер — рамка, выбранная — рамка и галочка */
+/* плашка темы: только превью (2 в ряд); в покое тонкая рамка, ховер — синяя рамка, выбранная — рамка и галочка */
 .tp-tile { display: block; min-width: 0; padding: 4px; text-align: left; }
 .tp-tile__wrap { position: relative; display: block; overflow: hidden; border-radius: 8px; }
-.tp-tile__wrap::after { content: ""; position: absolute; inset: 0; border: 2px solid transparent; border-radius: 8px; pointer-events: none; }
+.tp-tile__wrap::after { content: ""; position: absolute; inset: 0; border: 1px solid #eaeaea; border-radius: 8px; pointer-events: none; }
+.tp-tile:hover .tp-tile__wrap::after, .tp-tile.is-active .tp-tile__wrap::after { border-width: 2px; }
 .tp-tile:hover .tp-tile__wrap::after, .tp-tile.is-active .tp-tile__wrap::after { border-color: var(--info-border); }
 .tp-tile.is-active { cursor: default; }
-.tp-tile__sw { display: flex; padding: 4px 0 4px 6px; }
-.tp-tile__sw i { width: 16px; height: 16px; margin-right: -4px; border: 1px solid #d0d0d0; border-radius: 17px; background: var(--c); }
-.tp-tile__pv { display: block; height: 88.9px; overflow: hidden; } /* превью 306×181 × .4902 → ширина плашки 150 (карточка 474 / 3 − 8) */
-.tp-tile__pv .tpv { transform: scale(.4902); transform-origin: 0 0; }
+.tp-tile__pv { display: block; height: 135.7px; overflow: hidden; } /* превью 306×181 × .7484 → ширина плашки 229 (карточка 474 / 2 − 8) */
+.tp-tile__pv .tpv { transform: scale(.7484); transform-origin: 0 0; }
 .tp-tile__check {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 32px; height: 32px; border-radius: 100px;
   display: none; align-items: center; justify-content: center; background: #265fa1;
@@ -1678,20 +1688,26 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 #themeSwatches .swatch { cursor: pointer; }
 
 /* ---------- Окно «Фон» (Figma 16385:63244) и «Картинка» (16385:62903) ---------- */
-/* «Фон»: подпись и кружок — одна кнопка, наведение на подпись увеличивает и кружок */
-.theme-btn--bg { cursor: pointer; }
-.theme-btn--bg:hover .swatch, .theme-btn--bg.is-active .swatch { z-index: 1; transform: scale(1.142857); }
+/* «Фон»: иконка заливки и подпись — одна кнопка, ховерится весь бабл */
+.theme-btn--bg { align-items: center; padding: 1px; }
+.theme-btn--bg .theme-btn__label { padding: 0 10px 0 2px; }
+.theme-btn--bg .theme-btn__ico { flex: none; width: 28px; height: 28px; } /* иконка в квадрате 28 — высота бабла как у «Темы» */
 .theme-btn--bg.is-active { background: var(--pill-active); }
 .swatch.is-img, .cw-pill.is-img { background: var(--c) center / cover; }
 .bg-win { width: 362px; }
-.bg-win .cw-title { padding-left: 16px; }
-.bg-back { display: none; flex: none; width: 28px; height: 28px; margin: 0 -10px 0 8px; align-self: center; border-radius: 50%; align-items: center; justify-content: center; background: #fff; filter: drop-shadow(0 0 3px rgba(0, 0, 0, .1)); transition: filter .12s; }
-.bg-back img { display: block; margin-right: 1px; }
-.bg-back:hover { filter: drop-shadow(0 0 3px rgba(0, 0, 0, .1)) brightness(.97); }
-.bg-win.is-pic .bg-back { display: flex; }
-/* «Картинка»: заголовок по центру кнопки «‹» */
-.bg-win.is-pic .cw-title { align-self: center; padding-bottom: 0; line-height: 28px; }
-.bg-clip { color: #ccc; }
+.bg-win .cw-title { flex: none; align-self: center; padding: 0 0 0 16px; line-height: 28px; }
+/* тумблер «Цвет / Картинка» в шапке — как .pge-tumbler в ui-kit (components/pg-editors) */
+.bg-mid { flex: 1 1 auto; display: flex; align-items: center; padding-left: 8px; }
+.pge-tumbler { display: flex; gap: var(--offset-offset_3xs); padding: 1px; border-radius: 999px; background: var(--background-contrast-pale_color); }
+.pge-tumbler__item {
+  display: flex; align-items: center; height: 26px; padding: 0 var(--offset-offset_m); border-radius: 999px;
+  font-size: var(--font-font-size-font-size_l); color: var(--text-label_contrast_text-color); white-space: nowrap; cursor: pointer;
+}
+.pge-tumbler__item.is-active {
+  background: var(--background-background-color); color: var(--text-text-color); cursor: default;
+  box-shadow: 0 0 var(--blur-shadow-blur_d) var(--color-shadow-color_d);
+}
+/* вкладки окна: «Цвет» — значение и палитра; «Картинка» (.is-pic) — настройки картинки, если она задана фоном */
 .bg-pic, .bg-win.is-pic .bg-main { display: none; }
 .bg-win.is-pic .bg-pic { display: flex; }
 /* верхняя строка: цвет — HEX и прозрачность, градиент — «# начало → F8F8F8», картинка — только превью */
@@ -1707,7 +1723,17 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .bg-more span { color: #313e78; }
 .bg-win .cw-sw.is-grad { background: linear-gradient(var(--c), rgba(248, 248, 248, 0)), #fff; }
 /* каталог картинок 2 × 4 по 163 × 91, без прокрутки; по наведению — карандаш (открывает «Картинку») */
-.bg-cat { display: grid; grid-template-columns: repeat(2, 163px); grid-auto-rows: 91px; gap: 8px; padding: 12px; }
+/* меню «Загрузить» поверх окна фона (как в Saby): пункты и коллекция, прокручивается под шапкой меню */
+.bg-up-menu { top: 0; left: 0; width: 346px; z-index: 2; padding-bottom: 0; } /* левый верхний угол — по углу окна фона */
+.bg-cat { max-height: 600px; overflow-y: auto; scrollbar-width: none; padding: 0 0 12px; }
+.bg-cat::-webkit-scrollbar { display: none; }
+/* отступы — как в меню «⋮» аккордеона (.acc-more): плашка пункта 8 от краёв меню, в пункте 12 слева и 16 справа, иконка 24 + 8 */
+.bg-up .icon-menu__item { padding: 0 16px 0 12px; }
+/* рубрики — под текстом пунктов: 8 + 12 + 24 + 8 = 52 слева, справа — по краю плашки пункта (8) */
+.bg-coll { display: flex; flex-direction: column; gap: 10px; padding: 8px 8px 0 52px; }
+.bg-coll__group { display: flex; flex-direction: column; gap: 6px; }
+.bg-coll__name { font-size: 15px; line-height: 1.4; letter-spacing: -.2115px; color: var(--label); }
+.bg-coll .bg-tile { display: block; width: 100%; height: 77px; }
 .bg-tile { position: relative; border: 1px solid #eaeaea; border-radius: 8px; overflow: hidden; background: #fff var(--img) center / cover; transition: border-color .12s; }
 .bg-tile:hover { border-color: #d2d6da; }
 .bg-tile .bg-tool { position: absolute; right: 5px; top: 5px; opacity: 0; transition: opacity .12s, background-color .12s, box-shadow .12s; }

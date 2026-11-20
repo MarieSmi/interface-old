@@ -162,7 +162,7 @@
     // сценарии «Аккордеон» и «Подменю» — в отдельном прототипе github.com/MarieSmi/accordion-setup;
     // сценарии «Добавление вкладки» (tab-toolbar, tab-dash-head) убраны с панели, код остался
     links: [
-      { title: 'Макет', href: 'https://www.figma.com/proto/xMQ3ZEN4AUINgwjVoxR8hS/%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D1%84%D0%B5%D0%B9%D1%81%D0%B0-%D0%B2-%D0%BA%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80%D0%B5?node-id=16219-76404&p=f&t=RLyxreNsun3BEvZg-0&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=16219%3A76404&page-id=15961%3A68013&hide-ui=1' },
+      { title: 'Настройка интерфейса', href: 'https://mariesmi.github.io/interface-prototype/' }, // оригинальная демка
       { title: 'Настройка аккордеона', href: 'https://mariesmi.github.io/accordion-setup/' },
     ],
     team: [
@@ -3318,12 +3318,6 @@
 
   // Кружки темы: цвет аккордеона (прозрачный — шахматка), «Акцентный» (рыжий, accent2), «Акцентный 2» (синий, marker).
   const swatchList = (t) => [t.acc, t.accent2, t.marker];
-  const COLOR_KEYS = ['acc', 'accent2', 'marker'];
-  // Кружок в шапке: «нет цвета» — перечёркнутый, полупрозрачный — шахматка; клик открывает окно выбора цвета.
-  const headSwatch = (c, key) => {
-    const alpha = c && /^rgba/.test(c);
-    return `<span class="swatch${c ? (alpha ? ' is-alpha' : '') : ' is-none'}" data-key="${key}"${c ? ` style="--c:${c}"` : ''}></span>`;
-  };
 
   const themePanel = $('#themePanel');
   const themeBtn = $('#themeBtn');
@@ -3332,7 +3326,6 @@
   const tpUserGrid = $('#tpUserGrid');
   const tileHTML = (id, t, e = effColors(t, {})) =>
     `<button class="tp-tile" type="button" data-theme="${id}"><span class="tp-tile__wrap">` +
-    `<span class="tp-tile__sw">${[e.acc, e.accent2, e.marker].map((c) => (c ? `<i${/^rgba/.test(c) ? ' class="is-alpha"' : ''} style="--c:${c}"></i>` : '<i class="is-none"></i>')).join('')}</span>` +
     `<span class="tp-tile__pv">${pvHTML(t, e)}</span>` +
     '<span class="tp-tile__check"><span class="ico24">&#xE616;</span></span></span></button>';
   tpGrid.innerHTML = THEMES.map((t) => tileHTML(t.id, t)).join('');
@@ -3377,7 +3370,10 @@
     const e = effColors(t);
     for (const p of THEME_PROPS) stage.style.removeProperty(p);
     for (const [p, v] of Object.entries(themeVars(t, e))) stage.style.setProperty(p, v);
-    $('#themeSwatches').innerHTML = [e.acc, e.accent2, e.marker].map((c, i) => headSwatch(c, COLOR_KEYS[i])).join('');
+    // двойной кружок «Темы»: слева цвет аккордеона (прозрачный — белая половина), справа «Акцентный 2»
+    const dot = $('#themeDot');
+    dot.style.setProperty('--dot-l', e.acc || '#fff');
+    dot.style.setProperty('--dot-r', e.marker || '#fff');
     paintBg(t);
     // по наведению — кнопка «Настроить» (Figma 16360:50515); клик — расширенные настройки
     $('#tpBig').innerHTML = pvHTML(t, e) + '<span class="tp-setup"><span class="ico24">&#xE660;</span>Настроить</span>';
@@ -3418,7 +3414,8 @@
     if (tile) applyTheme(tile.dataset.theme);
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !bgWin.hidden) closeBgWin();
+    if (e.key === 'Escape' && !bgUpMenu.hidden) closeUpMenu();
+    else if (e.key === 'Escape' && !bgWin.hidden) closeBgWin();
     else if (e.key === 'Escape' && !colorWin.hidden) closeColorWin();
     else if (e.key === 'Escape' && !themePanel.hidden) closeThemePanel();
   });
@@ -3475,7 +3472,7 @@
     cwOrig = cwCurrent();
     cwSnap = JSON.stringify({ themeId, userTheme });
     // окно — над своим кружком: левый край на 23px левее нажатого кружка
-    const sw = stageRect(anchor ?? $(`#themeSwatches .swatch[data-key="${key}"]`));
+    const sw = stageRect(anchor ?? themeBtn);
     colorWin.hidden = false;
     colorWin.style.left = Math.round(Math.max(0, Math.min(sw.left + sw.width / 2 - 37, 1600 - colorWin.offsetWidth))) + 'px';
     colorWin.style.top = anchor ? Math.round(Math.max(0, sw.top + sw.height / 2 - 22)) + 'px' : '0';
@@ -3486,10 +3483,6 @@
   // валик в шапке редактора аккордеона — то же окно, что и первый кружок «Темы» (цвет аккордеона); повторный клик закрывает
   aeTheme.addEventListener('click', () => (aeTheme.classList.contains('is-active') ? closeColorWin() : openColorWin('acc', aeTheme)));
 
-  $('#themeSwatches').addEventListener('click', (e) => {
-    const sw = e.target.closest('.swatch');
-    if (sw) openColorWin(sw.dataset.key);
-  });
   $('#cwPresets').addEventListener('click', (e) => {
     const sw = e.target.closest('.cw-sw');
     if (!sw) return;
@@ -3568,9 +3561,6 @@
   function paintBg(t) {
     const b = curBg();
     const img = b.kind === 'img';
-    const sw = $('#bgSwatch');
-    sw.className = 'swatch' + (img ? ' is-img' : b.kind === 'color' && b.a < 100 ? ' is-alpha' : '');
-    sw.style.setProperty('--c', img ? `url(${BG_IMGS[b.i]})` : custom.bg ? bgPreview(b) : t.bg ?? DEFAULT_BG);
     stage.classList.toggle('is-bg-img', img);
     // аккордеон белый 70%, как задаёт картинка (не перекрашен), — его забеление входит в общий слой под контентом (styles.css).
     // Аккордеон без цвета лежит на том же забелении, что и контент: картинка под ним тоже под белым 70%.
@@ -3595,8 +3585,18 @@
   $('#bgPresets').innerHTML =
     BG_GRADS.map((c) => `<button class="cw-sw is-grad" type="button" data-grad="${c}" style="--c:${rgba(c, .1)}" aria-label="Градиент"></button>`).join('') +
     [DEFAULT_BG, ...BG_COLORS].map((h) => `<button class="cw-sw" type="button" data-hex="${h}" style="--c:${h}" aria-label="${h}"></button>`).join('');
-  $('#bgCat').innerHTML = BG_IMGS.map((src, i) =>
-    `<button class="bg-tile" type="button" data-img="${i}" style="--img:url(${src})" aria-label="Картинка ${i + 1}"><span class="bg-tool"><span class="ico">&#xE660;</span></span></button>`).join('');
+  // меню «Загрузить»: пункты (только ховерятся) и коллекция — рубрика и широкая картинка под ней.
+  // Рубрики — как в Saby, картинки — наши заглушки (по одной на рубрику).
+  const BG_COLLECTION = ['Недавние', 'IT-технологии', 'Бизнес', 'Всего понемногу', 'Госорганы', 'Еда', 'Природа', 'Архитектура'];
+  $('#bgCat').innerHTML =
+    '<div class="icon-menu__list bg-up">' +
+    '<div class="icon-menu__item is-static"><span class="ico24">&#xE730;</span><span class="icon-menu__text">С компьютера</span></div>' +
+    '<div class="icon-menu__item is-static"><span class="ico24">&#xE6FD;</span><span class="icon-menu__text">Из буфера обмена</span></div>' +
+    '<div class="icon-menu__item is-static"><span class="ico24">&#xE90A;</span><span class="icon-menu__text">Из коллекции</span></div>' +
+    '</div><div class="bg-coll">' +
+    BG_IMGS.map((src, i) => `<div class="bg-coll__group"><span class="bg-coll__name">${BG_COLLECTION[i]}</span>` +
+      `<button class="bg-tile" type="button" data-img="${i}" style="--img:url(${src})" aria-label="${BG_COLLECTION[i]}"></button></div>`).join('') +
+    '</div>';
 
   // Новый фон: аккордеон не трогаем; тема становится пользовательской.
   function setBg(b) {
@@ -3636,23 +3636,43 @@
       if (skipInput !== x.key) $('input', row).value = f[x.key];
     }
   }
+  // тумблер в шапке: «Цвет» — значение и палитра, «Картинка» — настройки картинки
+  function setBgTab(tab) {
+    for (const b of $('#bgTabs').children) {
+      const on = b.dataset.tab === tab;
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-pressed', on);
+    }
+  }
   function openPic() {
     if (custom.bg?.kind !== 'img') return;
     bgWin.classList.add('is-pic');
-    $('#bgTitle').textContent = 'Картинка';
+    setBgTab('img');
     $('#bgPicPv').style.setProperty('--img', `url(${BG_IMGS[custom.bg.i]})`);
     fxRender();
   }
   function closePic() {
     bgWin.classList.remove('is-pic');
-    $('#bgTitle').textContent = 'Фон';
+    setBgTab('color');
   }
+  // меню «Загрузить» — поверх окна фона, пока картинка фоном не задана
+  const bgUpMenu = $('#bgUpMenu');
+  function closeUpMenu() { bgUpMenu.hidden = true; }
+  $('#bgUpClose').addEventListener('click', closeUpMenu);
+  $('#bgTabs').addEventListener('click', (e) => {
+    const b = e.target.closest('.pge-tumbler__item');
+    if (!b || b.classList.contains('is-active')) return;
+    if (b.dataset.tab === 'color') { closeUpMenu(); closePic(); }
+    else if (custom.bg?.kind === 'img') openPic();
+    else bgUpMenu.hidden = false;
+  });
 
   function openBgWin() {
     closeOtherWindows();
     closePopups();
-    closePic();
+    closeUpMenu();
     bgRender(true);
+    if (custom.bg?.kind === 'img') openPic(); else closePic(); // открывается на вкладке текущего фона
     // окно встаёт левым краем по левому краю кнопки «Фон», верх — по верху шапки
     const r = stageRect(bgBtn);
     bgWin.hidden = false;
@@ -3661,6 +3681,7 @@
     bgBtn.classList.add('is-active');
   }
   function closeBgWin() {
+    closeUpMenu();
     bgWin.hidden = true;
     bgBtn.classList.remove('is-active');
   }
@@ -3668,7 +3689,6 @@
   bgBtn.addEventListener('click', () => (bgWin.hidden ? openBgWin() : closeBgWin()));
   $('#bgDone').addEventListener('click', closeBgWin);
   $('#bgClose').addEventListener('click', closeBgWin);
-  $('#bgBack').addEventListener('click', closePic);
   $('#bgPresets').addEventListener('click', (e) => {
     const sw = e.target.closest('.cw-sw');
     if (!sw) return;
@@ -3676,13 +3696,13 @@
     setBg(sw.dataset.grad ? { kind: 'grad', c: sw.dataset.grad } : { kind: 'color', hex: sw.dataset.hex, a: 100 });
     closeBgWin();
   });
-  // клик по картинке — поставить её фоном (настройки сбрасываются для новой картинки); карандаш на картинке — ещё и открыть «Картинку»
+  // картинка из коллекции — фоном (настройки по умолчанию), меню закрывается, окно переходит на «Картинку» с её настройками
   $('#bgCat').addEventListener('click', (e) => {
     const tile = e.target.closest('.bg-tile');
     if (!tile) return;
-    const i = +tile.dataset.img;
-    if (!(custom.bg?.kind === 'img' && custom.bg.i === i)) setBg({ kind: 'img', i, fx: { ...FX_DEFAULT } });
-    if (e.target.closest('.bg-tool')) openPic();
+    setBg({ kind: 'img', i: +tile.dataset.img, fx: { ...FX_DEFAULT } });
+    closeUpMenu();
+    openPic();
   });
   bgHex.addEventListener('input', () => {
     const v = '#' + bgHex.value.trim().replace(/^#/, '');

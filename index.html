@@ -25,16 +25,14 @@
 
         <div class="ctor-header__center">
           <div class="ctor-header__colors">
-            <!-- «Тема» открывает панель тем; кружки (цвет аккордеона, «Акцентный», «Акцентный 2») рисует app.js по выбранной теме -->
-            <div class="pill-group theme-btn">
-              <button class="theme-btn__label" type="button" id="themeBtn">Тема</button>
-              <span class="swatches" id="themeSwatches"></span>
-            </div>
-            <!-- «Фон»: подпись и кружок открывают окно фона; наведение на подпись подсвечивает и кружок -->
-            <div class="pill-group theme-btn theme-btn--bg" id="bgBtn">
-              <button class="theme-btn__label" type="button">Фон</button>
-              <span class="swatches"><span class="swatch" id="bgSwatch" style="--c:#f8f8f8"></span></span>
-            </div>
+            <!-- «Тема»: весь бабл — одна кнопка, открывает панель тем; двойной кружок (слева цвет аккордеона, справа «Акцентный 2») красит app.js -->
+            <button class="pill-group theme-btn theme-btn--theme" type="button" id="themeBtn">
+              <span class="theme-dot" id="themeDot"></span><span class="theme-btn__label">Тема</span>
+            </button>
+            <!-- «Фон»: как «Тема» — весь бабл одна кнопка, иконка заливки (cbuc-icons E664) слева от подписи, ховерится вся кнопка; открывает окно фона -->
+            <button class="pill-group theme-btn theme-btn--bg" type="button" id="bgBtn">
+              <span class="ico theme-btn__ico">&#xE664;</span><span class="theme-btn__label">Фон</span>
+            </button>
           </div>
 
           <div class="ctor-header__tools">
@@ -974,10 +972,12 @@
            клик по картинке открывает «Картинку» (настройки картинки) в том же окне -->
       <div class="color-win bg-win" id="bgWin" hidden role="dialog" aria-labelledby="bgTitle">
         <div class="cw-head">
-          <button class="bg-back" type="button" id="bgBack" aria-label="Назад"><img src="assets/img/back-arrow.svg" width="7.5" height="13" alt=""></button>
           <span class="cw-title" id="bgTitle">Фон</span>
+          <!-- тумблер «Цвет / Картинка» — из ui-kit (components/pg-editors, .pge-tumbler); «Картинка» показывает каталог картинок -->
+          <span class="bg-mid"><span class="pge-tumbler" id="bgTabs">
+            <button type="button" class="pge-tumbler__item is-active" data-tab="color" aria-pressed="true">Цвет</button><button type="button" class="pge-tumbler__item" data-tab="img" aria-pressed="false">Картинка</button>
+          </span></span>
           <div class="cw-cmds">
-            <span class="cw-btn" title="Загрузить"><span class="ico bg-clip">&#xE671;</span></span>
             <span class="cw-btn" title="Пипетка"><img src="assets/img/eyedropper.svg" width="16" height="16" alt=""></span>
           </div>
           <button class="cw-done" type="button" id="bgDone" aria-label="Готово"><span class="ico">&#xE75E;</span></button>
@@ -997,7 +997,6 @@
             <div class="cw-presets" id="bgPresets"></div>
             <div class="cw-more bg-more"><span>Другой цвет</span><span>Градиент</span><span>Текстура</span></div>
           </div>
-          <div class="cw-card bg-cat" id="bgCat"></div>
         </div>
         <div class="cw-body bg-pic">
           <div class="cw-card bg-pic__card bg-pic__info">
@@ -1008,6 +1007,15 @@
             <div class="bg-row"><span class="bg-row__label">Стиль</span><span class="bg-row__val"><span class="bg-link">Оригинал картинки</span></span></div>
           </div>
           <div class="cw-card bg-pic__card bg-fx" id="bgFx"></div>
+        </div>
+        <!-- Меню «Загрузить»: по «Картинке», пока картинка фоном не задана, — поверх окна фона; выбор из коллекции ставит картинку и открывает её настройки -->
+        <div class="icon-menu bg-up-menu" id="bgUpMenu" hidden>
+          <div class="icon-menu__head">
+            <span class="ico24 icon-menu__head-icon">&#xE671;</span>
+            <span class="icon-menu__title">загрузить</span>
+            <button class="icon-menu__close" type="button" id="bgUpClose" aria-label="Закрыть"><img src="assets/img/close-popup.svg" width="28" height="28" alt=""></button>
+          </div>
+          <div class="bg-cat" id="bgCat"></div>
         </div>
       </div>
 
