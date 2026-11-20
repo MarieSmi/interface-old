@@ -3201,7 +3201,7 @@
   const DARK_PAGE = { // тёмная страница: карточки, текст, скелетон
     '--c-surface': '#23303e', '--c-text': '#e9ebec', '--c-text-strong': '#e9ebec', '--c-name': '#a9bfd9', '--c-name2': '#8fb4e8', '--c-sum': '#c9d3e8',
     '--c-label': '#9aa6b4', '--c-link': '#6fa8ec', '--c-border': '#34465a', '--c-divider': '#34465a', '--c-row': '#2b3a4a',
-    '--c-sk': '#34465a', '--c-sk-row': '#2b3a4a', '--c-sk-pic': '#2b3a4a', '--c-page': '#1d2834',
+    '--c-sk': '#34465a', '--c-sk-row': '#2b3a4a', '--c-sk-pic': '#2b3a4a', '--c-page': '#1d2834', '--c-page-veil': 'rgba(29, 40, 52, .7)',
   };
   const THEMES = [
     // под ЦУ — свой фон (Figma 16288:199296)
@@ -3292,7 +3292,7 @@
     const img = /^url\(/.test(pvBg ?? '');
     const veilAcc = img && (v['--acc-bg'] === 'transparent' || v['--acc-bg'] === 'rgba(255, 255, 255, 0.7)');
     const pv = {
-      bg: pvBg ?? v['--content-bg'], veil: img ? 'rgba(255, 255, 255, .7)' : 'transparent', acc: veilAcc ? 'transparent' : v['--acc-bg'], sel: p.sel ?? v['--acc-item-selected'] ?? '#273748',
+      bg: pvBg ?? v['--content-bg'], veil: img ? v['--c-page-veil'] ?? 'rgba(255, 255, 255, .7)' : 'transparent', acc: veilAcc ? 'transparent' : v['--acc-bg'], sel: p.sel ?? v['--acc-item-selected'] ?? '#273748',
       bird: v['--acc-bird'] ?? e.marker, 'bird-bg': v['--acc-bird-bg'] ?? 'transparent',
       title: p.title, line: p.line, icon: p.icon, 'icon-sel': p.iconSel, marker: e.marker, accent2: e.accent2,
       card: p.card ?? '#fff', box: p.box ?? '#f4f4f4', top: p.top ?? '#fff',
