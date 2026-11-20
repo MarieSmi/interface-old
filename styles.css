@@ -1785,6 +1785,9 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
   content: ''; position: absolute; inset: -40px; z-index: -1; pointer-events: none;
   background: var(--bg-tint, linear-gradient(transparent, transparent)), var(--bg-img) center / cover; background-blend-mode: soft-light, normal; opacity: var(--bg-op, 1); filter: var(--bg-filter, none);
 }
+/* «Растянуть»: аккордеон — часть страницы, картинки под ним нет (иначе она проступает по его краям — полоска 1px слева и сглаживание
+   при масштабировании сцены); под ним остаётся полоса --acc-under, как без картинки */
+.stage.is-bg-img:not(.is-aligned) .content::before { clip-path: inset(0 0 0 calc(40px + var(--acc-gap))); }
 /* Подложка страницы (--c-page темы; фон-картинка её не меняет — картинка видна только за страницей) — одним слоем под серединой и информерами (и под аккордеоном, пока он белый 70%, .is-acc-veil): у отдельных
    полупрозрачных подложек при масштабировании сцены на стыках (дробные пиксели) проступали светлые полосы. */
 .content::after {
