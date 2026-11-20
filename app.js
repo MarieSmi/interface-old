@@ -3201,7 +3201,7 @@
   const DARK_PAGE = { // тёмная страница: карточки, текст, скелетон
     '--c-surface': '#23303e', '--c-text': '#e9ebec', '--c-text-strong': '#e9ebec', '--c-name': '#a9bfd9', '--c-name2': '#8fb4e8', '--c-sum': '#c9d3e8',
     '--c-label': '#9aa6b4', '--c-link': '#6fa8ec', '--c-border': '#34465a', '--c-divider': '#34465a', '--c-row': '#2b3a4a',
-    '--c-sk': '#34465a', '--c-sk-row': '#2b3a4a', '--c-sk-pic': '#2b3a4a', '--c-page': '#1d2834', '--c-page-veil': 'rgba(29, 40, 52, .7)',
+    '--c-sk': '#34465a', '--c-sk-row': '#2b3a4a', '--c-sk-pic': '#2b3a4a', '--c-page': '#1d2834',
   };
   const THEMES = [
     // под ЦУ — свой фон (Figma 16288:199296)
@@ -3287,17 +3287,17 @@
   function pvStyle(t, e = effColors(t, {})) {
     const v = { ...themeVars(t, e) };
     const p = e.pv ?? t.pv;
-    // фон-картинка: под страницей забеление 70%, как на сцене; аккордеон без цвета или белый 70% лежит на том же забелении
+    // фон-картинка видна только за страницей; аккордеон без цвета лежит на подложке страницы, как на сцене
     const pvBg = pageBg ? bgPreview(pageBg) : null;
     const img = /^url\(/.test(pvBg ?? '');
     const veilAcc = img && (v['--acc-bg'] === 'transparent' || v['--acc-bg'] === 'rgba(255, 255, 255, 0.7)');
     const pv = {
-      bg: pvBg ?? v['--content-bg'], veil: img ? v['--c-page-veil'] ?? 'rgba(255, 255, 255, .7)' : 'transparent', acc: veilAcc ? 'transparent' : v['--acc-bg'], sel: p.sel ?? v['--acc-item-selected'] ?? '#273748',
+      bg: pvBg ?? v['--content-bg'], veil: 'transparent', acc: veilAcc ? 'transparent' : v['--acc-bg'], sel: p.sel ?? v['--acc-item-selected'] ?? '#273748',
       bird: v['--acc-bird'] ?? e.marker, 'bird-bg': v['--acc-bird-bg'] ?? 'transparent',
       title: p.title, line: p.line, icon: p.icon, 'icon-sel': p.iconSel, marker: e.marker, accent2: e.accent2,
       card: p.card ?? '#fff', box: p.box ?? '#f4f4f4', top: p.top ?? '#fff',
-      // сама страница справа от аккордеона — --c-page, как на сцене; при фоне-картинке её роль играет забеление
-      page: img ? 'transparent' : v['--c-page'] ?? '#f8f8f8',
+      // сама страница справа от аккордеона — --c-page темы, как на сцене; фон (и картинка) её не меняет
+      page: v['--c-page'] ?? '#f8f8f8',
     };
     return Object.entries(pv).map(([k, c]) => `--pv-${k}:${c}`).join(';');
   }
@@ -3528,15 +3528,12 @@
 
   // ---------- Фон (Figma 16385:63244, верхняя строка 16385:63266) ----------
   // Свой фон хранится в pageBg, отдельно от темы: не делает тему пользовательской, выбор темы его не сбрасывает.
-  // Фон не меняет цвет аккордеона и фон под ЦУ — они остаются от темы (или свои). Картинка: под серединой и информерами
-  // забеление 70%, поля по бокам — картинка как есть.
+  // Фон не меняет цвет аккордеона и фон под ЦУ — они остаются от темы (или свои). Картинка видна только за страницей:
+  // страница остаётся цвета темы (--c-page).
   // {kind: 'color', hex, a} · {kind: 'grad', c} — от акцента 10% к фону по умолчанию (DEFAULT_BG) · {kind: 'img', i, fx} — fx: настройки «Картинки».
   const BG_COLORS = [
-    null, '#e03131', '#f4fff4', '#fff4f4', '#6a5bb8', '#2862a2', '#e0251a', '#ebb653', '#333f7a', '#f2f2f2',
-    '#ffe0ea', '#ffffff', '#fff9e0', '#ebebeb', '#fff8f0', '#4c3294', '#943288', '#e5cb45', '#000000', null,
-    '#9b9b9b', '#999999', '#46a82a', '#4ee022', '#f540f5', '#4a9e36', '#ffeb1a', '#b06058', '#e35a4a', '#943253',
-    '#4c3294', '#943288', '#e59545', '#e5cb45', '#009918', '#26b6d4', '#326194', '#999999', '#ffe5e3', '#ffe3ec',
-    '#eae3ff', '#ffe3fa', '#fff1e3', '#fffbe3', '#e3ffe8', '#e3faff', '#e3f1ff', '#ededed',
+    '#e35a4a', '#943253', '#4c3294', '#943288', '#e59545', '#e5cb45', '#009918', '#26b6d4', '#326194', '#999999',
+    '#ffe5e3', '#ffe3ec', '#eae3ff', '#ffe3fa', '#fff1e3', '#fffbe3', '#e3ffe8', '#e3faff', '#e3f1ff', '#ededed',
   ];
   const BG_IMGS = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => `assets/img/bg/0${n}.jpg`);
   const FX_DEFAULT = { op: 100, blur: 0, con: 100, sat: 100, temp: 0 };
@@ -3571,12 +3568,10 @@
     const b = curBg();
     const img = b.kind === 'img';
     stage.classList.toggle('is-bg-img', img);
-    // аккордеон белый 70%, как задаёт картинка (не перекрашен), — его забеление входит в общий слой под контентом (styles.css).
-    // Аккордеон без цвета лежит на том же забелении, что и контент: картинка под ним тоже под белым 70%.
     const acc = custom.acc ?? baseColor(t.acc);
     const clear = !acc.hex || acc.a === 0;
-    // без картинки аккордеон без цвета лежит на подложке страницы (#f8f8f8), а не на фоне за страницей
-    stage.classList.toggle('is-acc-veil', img ? clear || (acc.hex === '#ffffff' && acc.a === 70) : clear);
+    // аккордеон без цвета лежит на подложке страницы (--c-page темы), а не на фоне за страницей — и с картинкой тоже
+    stage.classList.toggle('is-acc-veil', clear);
     stage.classList.toggle('is-acc-clear', img && clear);
     if (!img) { for (const p of ['--bg-img', '--bg-op', '--bg-filter', '--bg-tint']) stage.style.removeProperty(p); return; }
     const f = b.fx;
@@ -3592,12 +3587,11 @@
   const bgBtn = $('#bgBtn');
   const bgHex = $('#bgHex');
   const bgAlpha = $('#bgAlpha');
-  // палитра фона: 49 цветов по 10 в ряд (null — прозрачный, шахматка) и «+» в конце
+  // палитра фона: 20 цветов, 2 ряда по 10 — насыщенные и светлые
   $('#bgPresets').innerHTML =
     BG_COLORS.map((h) => h
       ? `<button class="cw-sw" type="button" data-hex="${h}" style="--c:${h}" aria-label="${h}"></button>`
-      : '<button class="cw-sw is-clear" type="button" data-hex="" aria-label="Прозрачный"></button>').join('') +
-    '<button class="cw-sw is-add" type="button" aria-label="Другой цвет"></button>';
+      : '<button class="cw-sw is-clear" type="button" data-hex="" aria-label="Прозрачный"></button>').join('');
   // меню «Загрузить»: пункты (только ховерятся) и коллекция — рубрика и широкая картинка под ней.
   // Рубрики — как в Saby, картинки — наши заглушки (по одной на рубрику).
   const BG_COLLECTION = ['Недавние', 'IT-технологии', 'Бизнес', 'Всего понемногу', 'Госорганы', 'Еда', 'Природа', 'Архитектура'];

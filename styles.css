@@ -77,7 +77,6 @@
   /* фон контента — задаётся темой оформления: при смене фона тема меняет --content-bg и --cu-bg вместе */
   --content-bg: #dad9e0;                     /* фон за страницей (поля вокруг неё): цвет или картинка; его меняет окно «Фон» */
   --c-page: #f8f8f8;                         /* фон самой страницы (середина + ЦУ) — окно «Фон» его не меняет */
-  --c-page-veil: rgba(255, 255, 255, .7);    /* страница поверх фона-картинки — забеление 70% цвета страницы темы */
   --under-content: rgba(255, 255, 255, 0);   /* настройка-интерфейса/цвет-под-контентом (под информерами) */
   --cu-bg: transparent;                      /* настройка-интерфейса/цвет-цу — под ЦУ виден фон темы */
 
@@ -1780,24 +1779,23 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .bg-num span { width: 11px; line-height: 24px; }
 .bg-num.no-unit span { visibility: hidden; }
 
-/* Фон-картинка: лежит под контентом отдельным слоем (на нём фильтры «Картинки»); контент, ЦУ и информеры — под забелением 70% */
+/* Фон-картинка: лежит под контентом отдельным слоем (на нём фильтры «Картинки»); страница (контент, ЦУ, информеры) закрывает её подложкой --c-page темы */
 .content { isolation: isolate; }
 .stage.is-bg-img .content::before {
   content: ''; position: absolute; inset: -40px; z-index: -1; pointer-events: none;
   background: var(--bg-tint, linear-gradient(transparent, transparent)), var(--bg-img) center / cover; background-blend-mode: soft-light, normal; opacity: var(--bg-op, 1); filter: var(--bg-filter, none);
 }
-/* Подложка страницы (#f8f8f8, на картинке — забеление 70%) — одним слоем под серединой и информерами (и под аккордеоном, пока он белый 70%, .is-acc-veil): у отдельных
+/* Подложка страницы (--c-page темы; фон-картинка её не меняет — картинка видна только за страницей) — одним слоем под серединой и информерами (и под аккордеоном, пока он белый 70%, .is-acc-veil): у отдельных
    полупрозрачных подложек при масштабировании сцены на стыках (дробные пиксели) проступали светлые полосы. */
 .content::after {
   content: ''; position: absolute; top: 0; bottom: 0; z-index: -1; pointer-events: none; background: var(--c-page);
   left: calc(var(--acc-gap) + var(--align-shift)); width: calc(var(--mid) + 322px);
 }
-.stage.is-bg-img .content::after { background: var(--c-page-veil); }
 .stage.is-acc-veil .content::after { left: calc(1px + var(--align-shift)); width: calc(var(--acc-gap) + var(--mid) + 321px); }
 /* аккордеон лежит на общем забелении; раскрытая по ховеру панель — поверх середины, ей нужна своя подложка */
 .stage.is-bg-img.is-acc-veil .accordion:not(.is-panel-open) { background: none; }
-/* аккордеон без цвета: раскрытой панели над серединой нужна своя подложка — забеление 70% с размытием контента под ней */
-.stage.is-bg-img.is-acc-clear .accordion.is-panel-open { background: var(--c-page-veil); backdrop-filter: blur(20px); }
+/* аккордеон без цвета: раскрытой панели над серединой нужна своя подложка — цвет страницы темы */
+.stage.is-bg-img.is-acc-clear .accordion.is-panel-open { background: var(--c-page); backdrop-filter: blur(20px); }
 
 /* ---------- Сценарий «Админка (Inside)» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18428:12935) ----------
    Экран 1600×843 поверх конструктора; ниже — полоса подложки. Экран — картинка, поверх свёрстана живая часть (у админки — панель «Online»). */
@@ -1853,9 +1851,8 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background: var(--bg-tint, linear-gradient(transparent, transparent)), var(--bg-img) center / cover; background-blend-mode: soft-light, normal; opacity: var(--bg-op, 1); filter: var(--bg-filter, none);
 }
-/* подложка страницы под серединой и ЦУ (на картинке — забеление 70%; и под аккордеоном, пока он без цвета или белый 70%) — как на сцене (.content::after) */
+/* подложка страницы под серединой и ЦУ (--c-page темы, и с картинкой; и под аккордеоном без цвета) — как на сцене (.content::after) */
 .ipv::after { content: ""; position: absolute; left: var(--ipv-acc); top: 0; right: 0; bottom: 0; z-index: -1; pointer-events: none; background: var(--c-page); }
-.stage.is-bg-img .ipv::after { background: var(--c-page-veil); }
 .stage.is-acc-veil .ipv::after { left: 0; }
 .stage.is-bg-img.is-acc-veil .ipv__acc { background: none; }
 .ipv i { display: block; }
@@ -2041,7 +2038,6 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .mob { position: absolute; left: 565px; top: 0; width: 400px; bottom: 8px; }
 .mob[hidden] { display: none; }
 .mob__screen { position: absolute; inset: 0; overflow: hidden; border-radius: 8px 0 0 0; background: var(--c-page); }
-.stage.is-bg-img .mob__screen { background: var(--c-page-veil); }
 .mob__page { position: absolute; left: 0; top: 0; display: block; }
 
 /* вкладка «Центр уведомлений» справа от экрана (Figma 18863:28165) — без действий */
