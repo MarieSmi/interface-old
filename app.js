@@ -142,7 +142,7 @@
   const frame = DemoFrame.mount({
     stage,
     head: {
-      title: 'Настройка интерфейса в конструкторе', version: '27.1100',
+      title: 'Настройка интерфейса — Текущая тема оформления', version: '27.1100',
       href: 'https://axure.tensor.ru/StandardsV8/guidelines.html', status: 'Электронно согласовано 19.11.26',
     },
     devices: [
